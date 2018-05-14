@@ -1,7 +1,7 @@
 {
   "name": "jsv-rxjs",
   "version": "0.0.1",
-  "description": "JavaScript Vite ! RxJS",
+  "description": "JavaScript Vite ! RxJS examples & course material",
   "author": "Loïc TRUCHOT",
   "engines": {
     "node": "~10.1.0",

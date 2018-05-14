@@ -7,8 +7,7 @@
 
 ## Use
 There is one branch like `01-dicovering_rxjs` for each [youtube video](https://www.youtube.com) of the list.
-
-Run `npm i && npm start` to see RxJS in action
+Run `npm i && npm run start:dev` to see RxJS in action on `http://localhost:4200`
 
 ## Version
 
