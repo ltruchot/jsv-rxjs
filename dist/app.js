@@ -62,7 +62,7 @@
 /******/ 	}
 /******/
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "cb3bd0aa4b92b699211d"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "cddf44a0f588171f38e6"; // eslint-disable-line no-unused-vars
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
@@ -771,9 +771,22 @@
   !*** ./src/app.ts ***!
   \********************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-eval("// explore current configuration\n\n\n//# sourceURL=webpack:///./src/app.ts?");
+"use strict";
+eval("\n// explore current configuration\nObject.defineProperty(exports, \"__esModule\", { value: true });\n// RXJS Today\nvar players = [{ name: 'Mario', age: 44 }, { name: 'Peach', age: 31 }];\n// Functinnal programming, based on lambda & composition\n// functional average\nvar functionnalAverage = players\n    .map(function (current) { return current.age; })\n    .reduce(function (acc, current) { return (acc += current); }, 0) / players.length;\nconsole.log('functionnal average', functionnalAverage);\n// Declarative programming, based on chain of operators\n// declarative average\nArray.prototype['pipe'] = function () {\n    var fns = [];\n    for (var _i = 0; _i < arguments.length; _i++) {\n        fns[_i] = arguments[_i];\n    }\n    return fns.reduce(function (f, g) { return function () {\n        var args = [];\n        for (var _i = 0; _i < arguments.length; _i++) {\n            args[_i] = arguments[_i];\n        }\n        return g(f.apply(void 0, args));\n    }; })(this);\n};\nvar array_operators_1 = __webpack_require__(/*! ./array-operators */ \"./src/array-operators.ts\");\nvar declarativeAverage = players.pipe(array_operators_1.subArray('age'), array_operators_1.average);\nconsole.log('declarative average', declarativeAverage);\n// Reactive programming, based on observable\n// simplest creation operator\n// create\n// simplest transformation & utilitarian operators\n// tap\n// map\n// explore learn RxJS documentation\n// @ https://www.learnrxjs.io/\n\n\n//# sourceURL=webpack:///./src/app.ts?");
+
+/***/ }),
+
+/***/ "./src/array-operators.ts":
+/*!********************************!*\
+  !*** ./src/array-operators.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nexports.subArray = function (subKey) { return function (arr) {\n    return arr.map(function (curr) { return curr[subKey]; });\n}; };\nexports.average = function (arr) {\n    return arr.reduce(function (acc, current) { return (acc += current); }, 0) / arr.length;\n};\n\n\n//# sourceURL=webpack:///./src/array-operators.ts?");
 
 /***/ })
 
