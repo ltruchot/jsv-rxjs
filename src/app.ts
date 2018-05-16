@@ -195,9 +195,9 @@ const clickedButton$ = fromEvent(
   document.querySelectorAll('button'),
   'click'
 ).pipe(
-  debounceTime(500),
+  tap(event => event.preventDefault()),
+  debounceTime(200),
   tap((event: any) => {
-    event.preventDefault();
     const ipt: any = document.getElementById(event.target.innerText);
     ipt.value = parseInt(ipt.value, 10) + 1;
   })
@@ -258,13 +258,57 @@ mergedEvents.pipe(tap(winner => winner$.next(winner))).subscribe();
 
 // HIGHER ORDER OBSERVABLE
 // mergeMap, switchMap, concatMap: higher order observable
+const wrongSmsWinner$ = winner$.pipe(
+  map(winner => {
+    apiService
+      .get('http://localhost:4200/api/players/' + winner)
+      .subscribe((player: any) => {
+        console.log('send sms to ' + player.tel);
+      });
+  })
+);
+wrongSmsWinner$.subscribe();
+// callback hell ! Back to square one...
+import { mergeMap } from 'rxjs/operators';
+const rightSmsWinner$ = winner$.pipe(
+  mergeMap(winner =>
+    apiService.get('http://localhost:4200/api/players/' + winner)
+  ),
+  tap((player: any) => console.log('send sms to ' + player.tel))
+);
+rightSmsWinner$.subscribe();
 
+const searchTerm$ = new Subject();
+import { filter, catchError, delayWhen } from 'rxjs/operators';
+import { timer } from 'rxjs';
+searchTerm$
+  .pipe(
+    distinctUntilChanged(),
+    filter((str: string) => str.length > 2),
+    delayWhen(() => timer(Math.random() * 2000)),
+    mergeMap((str: string) =>
+      apiService
+        .get('http://localhost:4200/api/search/' + str)
+        .pipe(catchError(e => of(e)))
+    )
+  )
+  .subscribe();
+
+const searchIpt = domService.createInput('search', '');
+form.appendChild(searchIpt);
+fromEvent(searchIpt, 'keyup')
+  .pipe(tap((event: any) => searchTerm$.next(event.target.value)))
+  .subscribe(console.log);
+// what about switchMap to solve this ??
 /*
-// quizz & snakeimport { Subject } from 'rxjs';
+
+// OTHER REAL LIFE EXAMPLE:
+// reactive quizz & 
+// reactive snake
 
 // NOT THAT MUCH OPERATOR
 // CREATE: from/of, fromEvent, fromPromise, interval, timer
-// COMBINE: merge, mergeAll, mergeMap,switchMap, forkJoin,
+// COMBINE: merge, mergeAll, mergeMap, switchMap, forkJoin,
 // concat, concatAll, concatMap, combineAll, combineLatest, withLatestFrom
 // GET SOME: take, takeUntil, takeWhile, skip, skipUntil, skipWhile
 // first, last, single, ignoreElements

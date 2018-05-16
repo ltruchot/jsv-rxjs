@@ -21,7 +21,7 @@ export const domService = {
     });
     return btn;
   },
-  createInput(id: string, value: number): HTMLButtonElement {
+  createInput(id: string, value): HTMLButtonElement {
     const btn: HTMLButtonElement = this.createEl('input', {
       value,
       id,

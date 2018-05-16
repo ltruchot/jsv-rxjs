@@ -1,117 +1,13 @@
 {
-
   "players": [
-    { "name": "Mario", "age": 44 },
-    { "name": "Peach", "age": 31 },
-    { "name": "Toad", "age": 14, "banned": true }
+    { "id": "Mario", "age": 44, "tel": "0670600500" },
+    { "id": "Peach", "age": 31, "tel": "0445325434" },
+    { "id": "Toad", "age": 14, "banned": true, "tel": "0254879675"  }
   ],
-
-
-  "quizzs": [{
-    "id": 0,
-    "name": { "fr": "Distances" },
-    "languages": ["fr"],
-    "items": [{
-      "id": 0,      
-      "q": {
-        "fr": "Quelle est la distance Terre-Lune moyenne ?"
-      },
-      "a": {        
-        "fr": "384 400 km"
-      }
-    }, {
-      "id": 1,      
-      "q": {
-        "fr": "Quelle est la taille du rayon de la terre ?"
-      },
-      "a": {        
-        "fr": "6 371 km"
-      }
-    }, {
-      "id": 2,      
-      "q": {
-        "fr": "Quelle est la taille de la ciconférence de la terre ?"
-      },
-      "a": {        
-        "fr": "40 075 km"
-      }
-    }, {
-      "id": 3,      
-      "q": {
-        "fr": "Quelle est la distance Terre-Mars moyenne ?"
-      },
-      "a": {        
-        "fr": "75 300 000 km"
-      }
-    }]
-  }, {
-    "id": 1,
-    "name": { "fr": "Tableau périodique des élements" },
-    "languages": ["fr"],
-    "items": [{
-      "id": 0,
-      "q": {
-        "fr": "Hydrogène"
-      },
-      "a": {
-        "fr": "H"
-      }
-    }, {
-      "id": 1,
-      "q": {
-        "fr": "Hélium"
-      },
-      "a": {
-        "fr": "He"
-      }
-    }, {
-      "id": 2,
-      "q": {
-        "fr": "Lithium"
-      },
-      "a": {
-        "fr": "Li"
-      }
-    }, {
-      "id": 3,
-      "q": {
-        "fr": "Béryllium"
-      },
-      "a": {
-        "fr": "Be"
-      }
-    }, {
-      "id": 4,
-      "q": {
-        "fr": "Bore"
-      },
-      "a": {
-        "fr": "B"
-      }
-    }, {
-      "id": 5,
-      "q": {
-        "fr": "Carbone"
-      },
-      "a": {
-        "fr": "C"
-      }
-    }, {
-      "id": 6,
-      "q": {
-        "fr": "Azote"
-      },
-      "a": {
-        "fr": "N"
-      }
-    }, {
-      "id": 7,
-      "q": {
-        "fr": "Oxygène"
-      },
-      "a": {
-        "fr": "O"
-      }
-    }]
-  }]
+  "search": [
+    { "id": "tes", "data": ["testeur", "testeuse", "conteste", "altesse", "vitesse"] },
+    { "id": "test", "data": ["testeur", "testeuse", "conteste" ] },
+    { "id": "teste", "data": ["testeur", "testeuse", "conteste"] },
+    { "id": "testeu", "data": ["testeur", "testeuse"] }
+  ]  
 }
