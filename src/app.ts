@@ -1,93 +1,146 @@
+import { apiService } from './services/api.service';
+// import { domService } from './services/dom.service';
 // explore current configuration
 
-// RXJS Today
+/******************************************/
+/************* INTRODUCTION ***************/
+/******************************************/
+
 // RxJS: functional & reactive library to deal with stream of events
 // using Observable & pipe pattern
+// It's hard. Don't give up, don't be lazy
 // current version: 6.1.0 (angular 6 only), warning: breaking changes 4, 5, 6
 // usable anywhere, with anything (node, angular, react, rx only, vue.js)
 // Observable propably part of ES10 in 2019, like Promise previously
 // @see https://github.com/tc39/proposal-observable
 // ReactiveX is everywhere: http://reactivex.io/languages.html
+// Most important: rxjs follow the natural evolution of JS programming:
+// Declarative & based on streams
 
-// VOCABULARY
+/******************************************/
+/************** VOCABULARY ****************/
+/******************************************/
 
-const players: any = [
-  { name: 'Mario', age: 44 },
-  { name: 'Peach', age: 31 },
-  { name: 'Toad', age: 14, banned: true }
-];
+// Instructions: Provide age average of active players
 
-// linear/imperative average
-let ageSum = 0;
-let validPlayerNbr = 0;
-for (let i = 0; i < players.length; i++) {
-  if (!players[i].banned) {
-    validPlayerNbr++;
-    ageSum += players[i].age;
+// linear/imperative/procedural programming
+apiService.getAsPromise('http://localhost:4200/api/players').then(players => {
+  let ageSum = 0;
+  let validPlayerNbr = 0;
+  for (let i = 0; i < players.length; i++) {
+    if (!players[i].banned) {
+      validPlayerNbr++;
+      ageSum += players[i].age;
+    }
   }
-}
-const imperativeAverage = ageSum / validPlayerNbr;
-console.log('imperative average', imperativeAverage);
+  const imperativeAverage = ageSum / validPlayerNbr;
+  console.log('imperative average', imperativeAverage);
+});
 
 // Functional programming, based on lambda, transformations & composition
-// functional average
-const filteredPlayers = players.filter(curr => !curr.banned);
-const functionnalAverage =
-  filteredPlayers
-    .map(curr => curr.age)
-    .reduce((acc, curr) => (acc += curr), 0) / filteredPlayers.length;
-console.log('functionnal average', functionnalAverage);
+apiService.getAsPromise('http://localhost:4200/api/players').then(players => {
+  const filteredPlayers = players.filter(curr => !curr.banned);
+  const functionnalAverage =
+    filteredPlayers
+      .map(curr => curr.age)
+      .reduce((acc, curr) => (acc += curr), 0) / filteredPlayers.length;
+  console.log('functionnal average', functionnalAverage);
+});
 
 // Declarative programming, based on chain of operators
-// declarative average
-Array.prototype['pipe'] = function(...fns) {
-  return fns.reduce((acc, fn) => (...args) => fn(acc(...args)))(this);
-};
+import { without, only, average } from './values/array.operators';
+apiService.getAsPromise('http://localhost:4200/api/players').then(players => {
+  Array.prototype['pipe'] = function(...fns) {
+    return fns.reduce((acc, fn) => (...args) => fn(acc(...args)))(this);
+  };
+  const declarativeAverage = players.pipe(
+    without('banned'),
+    only('age'),
+    average
+  );
+  console.log('declarative average', declarativeAverage);
+});
 
-import { without, only, average } from './array-operators';
-const declarativeAverage = players.pipe(
-  without('banned'),
-  only('age'),
-  average
-);
-console.log('declarative average', declarativeAverage);
+// Only for demonstration: an RXJS version
+/*
+import { without, only, average } from './values/rxjs.operators';
+const players$ = apiService.get('http://localhost:4200/api/players');
 
-// Reactive programming, based on observable
+players$
+  .pipe(without('banned'), only('age'), average())
+  .subscribe(average => console.log('rxjs average', average));
+*/
+
+// Observables
+// Subscribable collection of future values/events
 function fromArray(arr) {
   return {
     subscribe: observer => {
-      arr.forEach(curr => {
-        observer.next(curr);
-      });
-      observer.complete();
+      if (typeof observer === 'function') {
+        arr.forEach(curr => {
+          observer(curr);
+        });
+        return;
+      }
+      try {
+        arr.forEach(curr => {
+          observer.next(curr);
+        });
+        observer.complete();
+      } catch (e) {
+        observer.error(e);
+      }
     }
   };
 }
-const obsPlayers = fromArray(players);
-obsPlayers.subscribe({
+const obs123 = fromArray([1, 2, 3]);
+
+// Observer: an object 3 callback: next, complete & error
+obs123.subscribe({
   next: console.log,
   complete: () => console.log('done'),
   error: console.log
 });
 
+// Observer: or at least a callback (only "next")
+obs123.subscribe(console.log);
+obs123.subscribe(a => console.log(a * 10));
+
+// COLD: until subscribtion, no value are emitted
+// HOT: values are emitted, and everyon subscribe to it
+
+/******************************************/
+/*************** OPERATORS ****************/
+/******************************************/
+
+// pure functions that enable a functional programming style
+// to create or modify streams
+
 // CREATION OPERATORS + TAP
-// from (iterables)
-import { from } from 'rxjs';
+// from (iterables) & of (object)
+import { from, of } from 'rxjs';
+const players = [
+  { name: 'Mario', age: 44 },
+  { name: 'Peach', age: 31 },
+  { name: 'Toad', age: 14, banned: true }
+];
+
 from(players).subscribe({
-  next: data => console.log(data),
+  next: console.log,
   complete: () => console.log('done'),
   error: console.log
 });
-// or, as a shortcut for next
-from(players).subscribe(data => console.log(data));
+
+// or as a shortcut
+from(players).subscribe(console.log);
+of(players).subscribe(console.log);
 
 // tap: debug and side operations
 import { tap } from 'rxjs/operators';
 from(players)
-  .pipe(tap(console.log))
+  .pipe(tap(console.log), tap(() => console.log('coucou')))
   .subscribe();
-
-// until subscribtion, no value are emitted
+/*
 
 // TRANSFORM & UTILS OPERATORS
 // map
@@ -119,7 +172,6 @@ from(players)
   .subscribe();
 
 // fromEvent (dom events)
-import { domService } from './services/dom.service';
 from(players)
   .pipe(
     tap((player: any) => {
@@ -163,6 +215,8 @@ merge(typedInput$, clickedButton$)
 // subjects
 
 // cold & hot
+// hot: is already running when you subscribe
+// cold: you run it when you subscribe
 
 // quizz & snake
 
@@ -178,4 +232,5 @@ merge(typedInput$, clickedButton$)
 // explore learn RxJS documentation
 // @see https://www.learnrxjs.io/
 // @see http://reactivex.io/rxjs/
-// @see marble testing
+// @see marble testing (official way to do)
+*/

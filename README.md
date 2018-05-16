@@ -21,5 +21,5 @@ Previous full update of dependencies: 2018-05-14
 
 ## Update
 
-dev dep: `npm i --save-dev awesome-typescript-loader html-webpack-plugin tslint typescript webpack webpack-cli webpack-dev-server`
-dep: `npm i --save rxjs`
+dev dep: `npm i --save-dev copy-webpack-plugin html-webpack-include-assets-plugin json-server awesome-typescript-loader html-webpack-plugin tslint typescript webpack webpack-cli webpack-dev-server`
+dep: `npm i --save rxjs bootstrap`
