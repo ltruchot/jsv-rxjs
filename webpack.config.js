@@ -34,7 +34,9 @@ module.exports = {
     new HtmlWebpackIncludeAssetsPlugin({
       assets: ['css/bootstrap.min.css'], append: true 
     }),
-    new CopyWebpackPlugin([{ from: './src/assets', to: 'assets' }, { from: './node_modules/bootstrap/dist/css', to: 'css'},]),
+    new CopyWebpackPlugin([
+    { from: './src/assets', to: 'assets' }, 
+    { from: './node_modules/bootstrap/dist/css', to: 'css'},]),
     new HotModuleReplacementPlugin()
   ]
 };

@@ -1,5 +1,7 @@
 import { apiService } from './services/api.service';
-// import { domService } from './services/dom.service';
+import { domService } from './services/dom.service';
+const samir = domService.createAudio();
+document.body.appendChild(samir);
 // explore current configuration
 
 /******************************************/
@@ -62,14 +64,13 @@ apiService.getAsPromise('http://localhost:4200/api/players').then(players => {
 });
 
 // Only for demonstration: an RXJS version
-/*
-import { without, only, average } from './values/rxjs.operators';
-const players$ = apiService.get('http://localhost:4200/api/players');
 
-players$
-  .pipe(without('banned'), only('age'), average())
-  .subscribe(average => console.log('rxjs average', average));
-*/
+// import { without, only, average, kepass } from './values/rxjs.operators';
+// const players$ = apiService.get('http://localhost:4200/api/players');
+
+// players$
+//   .pipe(without('banned'), only('age'), average(), kepass())
+//   .subscribe(average => console.log('rxjs average', average));
 
 // Observables
 // Subscribable collection of future values/events
@@ -109,6 +110,9 @@ obs123.subscribe(a => console.log(a * 10));
 // COLD: until subscribtion, no value are emitted
 // HOT: values are emitted, and everyon subscribe to it
 
+// hot: is already running when you subscribe
+// cold: you run it when you subscribe
+
 /******************************************/
 /*************** OPERATORS ****************/
 /******************************************/
@@ -136,11 +140,10 @@ from(players).subscribe(console.log);
 of(players).subscribe(console.log);
 
 // tap: debug and side operations
-import { tap } from 'rxjs/operators';
+import { tap, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 from(players)
-  .pipe(tap(console.log), tap(() => console.log('coucou')))
+  .pipe(tap(() => console.log('coucou')), tap(console.log))
   .subscribe();
-/*
 
 // TRANSFORM & UTILS OPERATORS
 // map
@@ -167,20 +170,23 @@ from(players)
     scan((acc, curr: any) => {
       return acc + ' ' + curr.name;
     }, 'Les joueurs en ligne sont:'),
+    last(),
     tap(console.log)
   )
   .subscribe();
 
 // fromEvent (dom events)
+const form = domService.createForm();
+document.body.appendChild(form);
 from(players)
   .pipe(
     tap((player: any) => {
-      document.body.appendChild(domService.createButton(player.name));
-      document.body.appendChild(domService.createInput(player.name, 0));
+      form.appendChild(domService.createButton(player.name));
+      form.appendChild(domService.createInput(player.name, 0));
     }),
     last(),
     tap(() => {
-      document.body.appendChild(domService.createSpan('total', 'Total:  0'));
+      form.appendChild(domService.createSpan('total', 'Total:  0'));
     })
   )
   .subscribe();
@@ -189,36 +195,72 @@ const clickedButton$ = fromEvent(
   document.querySelectorAll('button'),
   'click'
 ).pipe(
-  map((event: any) => document.getElementById(event.target.innerText)),
-  tap((el: any) => (el.value = parseInt(el.value, 10) + 1))
+  debounceTime(500),
+  tap((event: any) => {
+    event.preventDefault();
+    const ipt: any = document.getElementById(event.target.innerText);
+    ipt.value = parseInt(ipt.value, 10) + 1;
+  })
 );
-// clickedButton$.subscribe();
+clickedButton$.subscribe();
 
 // COMBINATION OPERATORS
 // merge
 // import { merge } from 'rxjs/operators';
 import { merge } from 'rxjs';
 const typedInput$ = fromEvent(document.querySelectorAll('input'), 'keyup');
-merge(typedInput$, clickedButton$)
+const mergedEvents = merge(typedInput$, clickedButton$).pipe(
+  map(() => {
+    const inputList = document.querySelectorAll('input') as any;
+    const winner = { name: '', score: 0 };
+    const total = Array.from(inputList).reduce((acc: any, curr: any) => {
+      const score = parseInt(curr.value, 10);
+      if (winner.score < score) {
+        winner.score = score;
+        winner.name = curr.id;
+      }
+      return acc + score || 0;
+    }, 0);
+    document.getElementById('total').innerText = 'total ' + total;
+    return winner.name;
+  })
+);
+mergedEvents.subscribe();
+
+// SUBJECTS ?
+// When creation operator is insufficient for your problem
+// aka: "next" option isn't appropiate
+// then, create your own subject !
+// it's an observable (subscribe) AND an observer (next/complete/error)
+import { Subject } from 'rxjs';
+import { kepass } from './values/rxjs.operators';
+const winner$ = new Subject();
+winner$
   .pipe(
-    tap(() => {
-      const inputList = document.querySelectorAll('input') as any;
-      const total = Array.from(inputList).reduce(
-        (acc: any, curr: any) => acc + parseInt(curr.value, 10) || 0,
-        0
+    tap((data: string) => {
+      Array.from(document.querySelectorAll('.btn')).forEach(btn =>
+        btn.classList.remove('btn-success')
       );
-      document.getElementById('total').innerText = 'total ' + total;
-    })
+      if (data) {
+        const btn = document.getElementById('btn-' + data.toLowerCase());
+        btn.classList.add('btn-success');
+      }
+    }),
+    distinctUntilChanged(),
+    kepass()
   )
-  .subscribe();
+  .subscribe(console.log);
+winner$.subscribe();
+mergedEvents.pipe(tap(winner => winner$.next(winner))).subscribe();
 
-// subjects
+// Behavior Subject: the same with a first value, like "Peach"
+// Replay Subject: the same... but will replay previous values for each subscribers
 
-// cold & hot
-// hot: is already running when you subscribe
-// cold: you run it when you subscribe
+// HIGHER ORDER OBSERVABLE
+// mergeMap, switchMap, concatMap: higher order observable
 
-// quizz & snake
+/*
+// quizz & snakeimport { Subject } from 'rxjs';
 
 // NOT THAT MUCH OPERATOR
 // CREATE: from/of, fromEvent, fromPromise, interval, timer

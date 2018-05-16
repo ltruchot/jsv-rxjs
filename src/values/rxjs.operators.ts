@@ -1,4 +1,12 @@
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+
+export const kepass = () => obs => {
+  return obs.pipe(
+    tap(() => {
+      (document.getElementById('samir') as HTMLAudioElement).play();
+    })
+  );
+};
 
 export const without = key => obs => {
   return obs.pipe(map((arr: any) => arr.filter(curr => !curr[key])));
